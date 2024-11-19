@@ -31,7 +31,6 @@ def download_sentinel1(i,g,pol,name,S1tile_path,scale):
     gee_download_geemap(s1img,outpath, scale)
 
 
-
 def ee_clip_mosaic_roi(dobject,roi):
     mosaic = dobject.mosaic()
     mosaiclip = mosaic.clip(roi)
