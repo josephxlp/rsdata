@@ -1,20 +1,38 @@
-# RSData
+# RSData Project Metadata
 
-RSData is a Python-based project designed to download and process satellite imagery from Sentinel-1 and Sentinel-2. It allows users to specify a time range and geographical area to obtain the median image with selected bands for Sentinel-2, while Sentinel-1 data is always processed with VV and VH polarizations. Users can also select the polarization and direction (descent/ascent) for Sentinel-1.
+RSData is designed to scale Google Earth Engine for downloading large volumes of data. It supports multiple datasets with various options for customization and processing.
 
-## Features
+## Available Datasets and Options
 
-- **Sentinel-1 and Sentinel-2 Data Download**: Automatically download satellite imagery based on user-specified parameters.
-- **Median Image Calculation**: Compute the median image for the specified time and geometry.
-- **Band Selection for Sentinel-2**: Choose specific bands for processing Sentinel-2 data.
-- **Polarization and Direction Selection for Sentinel-1**: Default processing with VV and VH polarizations, with options to select polarization and direction.
+### Sentinel-1
+- **Area of Interest (AOI)**: Specify as a polygon or bounding box.
+- **Polarization (pol)**: Options are 'VV' or 'VH'.
+- **Orbit Pass (opass)**: Options are 'ASCENDING' or 'DESCENDING'.
+- **Date Range**: Specify start date (`idate`) and end date (`fdate`), e.g., '2019-01-01' to '2022-12-01'.
+- **Returns**: VV and VH bands.
 
-## Requirements
+### Sentinel-2
+- **Region**: Specify the area of interest.
+- **Band Codes**: Select specific bands for processing.
+- **Cloud Filter**: Default is 30.
+- **Date Range**: Specify start and end dates.
+- **Returns**: Median image with specified bands in `band_codes`.
 
-- Python 3.x
-- Required Python libraries (install via `requirements.txt`)
+### Copernicus DSM
+- **Input**: Takes a polygon or bounding box.
+- **Returns**: Variables within the dataset, including:
+  - `WBM`: Water Body Mask
+  - `HEM`: Height Error Mask
+  - `FLM`: Forest Loss Mask
+  - `EDM`: Elevation Data Mask
+  - `DEM`: Digital Elevation Model
 
-## Installation
+### Aster
+- **Input**: Takes coordinates in the format (xmin, ymin, xmax, ymax) in EPSG:4326 (WGS 84).
+- **Returns**: Both ASTER DEM and water mask.
 
-1. Clone the repository:
-   
+## Usage
+
+The project is structured to handle large datasets efficiently, leveraging Google Earth Engine's capabilities to process and download data based on user-defined parameters.
+
+For more detailed instructions on how to use each dataset option, refer to the specific scripts `S1.py` and `S2.py` included in the project.
