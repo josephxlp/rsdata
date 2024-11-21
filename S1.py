@@ -2,7 +2,7 @@ import os
 import ee 
 import geemap
 import time 
-from upaths import patches_dpath, sentinel1_dpath
+from upaths import patches_pattern, sentinel1_dpath
 from glob import glob
 from concurrent.futures import ThreadPoolExecutor
 import geopandas as gpd 
@@ -15,12 +15,12 @@ except:
     ee.Initialize(opt_url='https://earthengine-highvolume.googleapis.com')
 
 cpus = int(os.cpu_count() * 0.75)
-scale = 15 
+scale = 30#15 
 pol = 'VV'
 name = 'S1_VVVH'
 
-gpkg_files = sorted(glob(f'{patches_dpath}/*.gpkg'),reverse=True)
-gpkg_files
+gpkg_files = sorted(glob(patches_pattern),reverse=True)
+print(gpkg_files)
 if __name__ == '__main__':
     ti = time.perf_counter()
     for i in range(len(gpkg_files)):

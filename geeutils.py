@@ -12,7 +12,7 @@ def get_ee_geometry(i, g, name):
     region = ee.Geometry.Rectangle(bBox)
     return region, fname
 
-def get_S1_image(aoi,pol='VV', opass='ASCENDING',idate='2019-01-01',fdate='2022-12-01'):
+def get_S1_image(aoi,pol='VV', opass='ASCENDING',idate='2021-01-01',fdate='2022-12-01'):
     sentinel1 = ee.ImageCollection('COPERNICUS/S1_GRD') \
     .filter(ee.Filter.eq('instrumentMode','IW')) \
     .filterDate(idate,fdate).filter(ee.Filter.listContains('transmitterReceiverPolarisation', pol)) \
