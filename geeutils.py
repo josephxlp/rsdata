@@ -114,5 +114,12 @@ def get_tilename(subg):
     print(identifier)
     return identifier
 
+def initialize_gee_highvolume_api():
+    try:
+        ee.Initialize(opt_url='https://earthengine-highvolume.googleapis.com')
+    except:
+        ee.Authenticate()
+        ee.Initialize(opt_url='https://earthengine-highvolume.googleapis.com')
+
 
 
