@@ -3,6 +3,9 @@ import os
 import numpy as np 
 from opentopographyutils import dem_types, download_globaldem
 from upaths import file_paths,OPEN_TOPOGRAPHY_DPATH
+from sec import creds
+
+api_key = creds['OPEN_TOPOGRAPHY_API_KEY']
 varnames = np.array(list(dem_types.values()))
 
 #for varname in varnames:
