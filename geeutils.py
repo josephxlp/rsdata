@@ -63,6 +63,18 @@ def get_ee_geometry_s2(i, g, name):
     region = ee.Geometry.Rectangle(bBox)
     return region, fname
 
+# ENDVI: Enhanced Normalized Difference Vegetation Index.
+# NDVI: Normalized Difference Vegetation Index
+
+# ANDWI: Augmented Normalized Difference Water Index.
+# NDWI: Normalized Difference Water Index.
+
+# NBAI: Normalized Built-up Area Index.
+# UI: Urban Index
+
+
+
+
 def get_S2median(region,band_codes,CLOUD_FILTER=30):
     s2coll = ee.ImageCollection('COPERNICUS/S2_HARMONIZED') \
              .filterBounds(region) \
@@ -122,4 +134,70 @@ def initialize_gee_highvolume_api():
         ee.Initialize(opt_url='https://earthengine-highvolume.googleapis.com')
 
 
+def download_sentinel2_indices(i,g,name,S2tile_path,scale):
+    region, fname = get_ee_geometry_s2(i, g,name)
+    #rgb = get_S2median(region,band_codes)
+    rgb = get_S2median_indices(region, CLOUD_FILTER=30)
+    outpath = join(S2tile_path, fname)
+    gee_download_geemap(rgb,outpath, scale)
+    #time.sleep(0.5)
 
+
+
+def get_S2median_indices(region, CLOUD_FILTER=30):
+    """
+    Generate median composite from Sentinel-2 imagery and compute additional indices.
+    
+    Parameters:
+    - region: ee.Geometry, the area of interest.
+    - CLOUD_FILTER: int, maximum cloud cover percentage to include in the imagery.
+
+    Returns:
+    - ee.Image: Sentinel-2 median composite including RGB, NIR, and additional indices.
+    """
+    # Import Sentinel-2 dataset and filter it
+    s2coll = ee.ImageCollection('COPERNICUS/S2_HARMONIZED') \
+        .filterBounds(region) \
+        .filterDate('2021-01-01', '2022-01-01') \
+        .filter(ee.Filter.lte('CLOUDY_PIXEL_PERCENTAGE', CLOUD_FILTER))
+    
+    # Apply cloud masking
+    sentinel2_masked = s2coll.map(mask_clouds)
+    
+    # Compute median composite and clip to region
+    composite = sentinel2_masked.select(['B4', 'B3', 'B2', 'B8', 'B11']).median().clip(region)
+    
+    # Compute indices
+    ndvi = composite.expression(
+        'float((NIR - RED) / (NIR + RED))',
+        {'NIR': composite.select('B8'), 'RED': composite.select('B4')}
+    ).rename('NDVI')
+
+    endvi = composite.expression(
+        'float((NIR + GREEN - 2 * RED) / (NIR + GREEN + 2 * RED))',
+        {'NIR': composite.select('B8'), 'GREEN': composite.select('B3'), 'RED': composite.select('B4')}
+    ).rename('ENDVI')
+
+    ndwi = composite.expression(
+        'float((GREEN - NIR) / (GREEN + NIR))',
+        {'GREEN': composite.select('B3'), 'NIR': composite.select('B8')}
+    ).rename('NDWI')
+
+    andwi = composite.expression(
+        'float((GREEN - SWIR1) / (GREEN + SWIR1))',
+        {'GREEN': composite.select('B3'), 'SWIR1': composite.select('B11')}
+    ).rename('ANDWI')
+
+    nbai = composite.expression(
+        'float((SWIR1 - RED) / (SWIR1 + RED))',
+        {'SWIR1': composite.select('B11'), 'RED': composite.select('B4')}
+    ).rename('NBAI')
+
+    ui = composite.expression(
+        'float((SWIR1 - NIR) / (SWIR1 + NIR))',
+        {'SWIR1': composite.select('B11'), 'NIR': composite.select('B8')}
+    ).rename('UI')
+
+    # Combine RGB, NIR, and indices
+    result = composite.addBands([ndvi, endvi, ndwi, andwi, nbai, ui])
+    return result
